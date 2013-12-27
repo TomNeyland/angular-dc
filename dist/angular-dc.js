@@ -9,12 +9,21 @@ angular.module('angularDc', []).directive('dcChart', function () {
     var chartFactory = dc[chartTypeName];
     var chart = chartFactory(chartElement, chartGroupName);
     var validOptions = _(chart).functions().value();
-    console.log(validOptions);
     var objOptions = getOptionsFromObject(scope, validOptions);
     var attrOptions = getOptionsFromAttrs(scope, iAttrs, validOptions);
     var scopeOptions = getOptionsFromScope(scope, validOptions);
     var options = _({}).extend(defaultOptions, objOptions, attrOptions, scopeOptions).value();
-    console.log(_.keys(options), options);
+    var eventHandlers = _({
+        'preRender': scope.onPreRender(),
+        'postRender': scope.onPostRender(),
+        'preRedraw': scope.onPreRedraw(),
+        'postRedraw': scope.onPostRedraw(),
+        'filtered': scope.onFiltered(),
+        'zoomed': scope.onZoomed()
+      }).omit(_.isUndefined);
+    eventHandlers.each(function (handler, evt) {
+      chart.on(evt, handler);
+    }).value();
     chart.options(options);
     return chart;
   }
@@ -54,7 +63,13 @@ angular.module('angularDc', []).directive('dcChart', function () {
       dimension: '&',
       width: '=',
       height: '=',
-      config: '&'
+      config: '&',
+      onPreRender: '&',
+      onPostRender: '&',
+      onPreRedraw: '&',
+      onPostRedraw: '&',
+      onFiltered: '&',
+      onZoomed: '&'
     },
     template: '<svg></svg>',
     link: function (scope, iElement, iAttrs) {
