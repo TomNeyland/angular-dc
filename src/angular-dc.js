@@ -11,7 +11,6 @@ angular.module('angularDc', [])
 
     function setupChart(scope, iElement, iAttrs) {
 
-
         var chartElement = iElement[0],
             chartTypeName = iAttrs.dcChart || iAttrs.chartType,
             chartGroupName = iAttrs.chartGroup || undefined;
@@ -33,6 +32,21 @@ angular.module('angularDc', [])
                 attrOptions,
                 scopeOptions)
             .value();
+
+        // TODO: Refactor this, events should be able
+        // to be passed in via scope or options obj
+        var eventHandlers = _({
+            'preRender': scope.onPreRender(),
+            'postRender': scope.onPostRender(),
+            'preRedraw': scope.onPreRedraw(),
+            'postRedraw': scope.onPostRedraw(),
+            'filtered': scope.onFiltered(),
+            'zoomed': scope.onZoomed(),
+        }).omit(_.isUndefined)
+
+        eventHandlers.each(function(handler, evt) {
+            chart.on(evt, handler);
+        }).value();
 
         chart.options(options);
 
@@ -83,6 +97,12 @@ angular.module('angularDc', [])
             width: '=',
             height: '=',
             config: '&',
+            onPreRender: '&',
+            onPostRender: '&',
+            onPreRedraw: '&',
+            onPostRedraw: '&',
+            onFiltered: '&',
+            onZoomed: '&',
         },
         template: '<svg></svg>',
         link: function(scope, iElement, iAttrs) {
@@ -95,6 +115,8 @@ angular.module('angularDc', [])
                 }
                 chart.options(newValue);
             });
+
+
 
             chart.render();
 
