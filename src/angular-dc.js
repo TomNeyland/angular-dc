@@ -5,8 +5,7 @@ angular.module('angularDc', [])
 .directive('dcChart', function() {
 
     var defaultOptions = {
-        width: 200,
-        height: 200
+
     };
 
     function setupChart(scope, iElement, iAttrs) {
