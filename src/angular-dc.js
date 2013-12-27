@@ -116,10 +116,7 @@ angular.module('angularDc', [])
                 chart.options(newValue);
             });
 
-
-
             chart.render();
-
         }
     };
 
