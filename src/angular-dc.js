@@ -18,19 +18,6 @@ angular.module('angularDc', [])
 
         var chart = chartFactory(chartElement, chartGroupName);
 
-        // all chart options are exposed via a function
-        var validOptions = _(chart).functions().value();
-
-        var objOptions = getOptionsFromObject(scope, validOptions);
-        var attrOptions = getOptionsFromAttrs(scope, iAttrs, validOptions);
-        var scopeOptions = getOptionsFromScope(scope, validOptions);
-
-        var options = _({})
-            .extend(defaultOptions,
-                objOptions,
-                attrOptions,
-                scopeOptions)
-            .value();
 
         // TODO: Refactor this, events should be able
         // to be passed in via scope or options obj
@@ -47,6 +34,21 @@ angular.module('angularDc', [])
             chart.on(evt, handler);
         }).value();
 
+
+        // all chart options are exposed via a function
+        var validOptions = _(chart).functions().value();
+
+        var objOptions = getOptionsFromObject(scope, validOptions);
+        var attrOptions = getOptionsFromAttrs(scope, iAttrs, validOptions);
+        var scopeOptions = getOptionsFromScope(scope, validOptions);
+
+        var options = _({})
+            .merge(defaultOptions,
+                objOptions,
+                attrOptions,
+                scopeOptions)
+            .value();
+
         chart.options(options);
 
         return chart;
@@ -55,6 +57,7 @@ angular.module('angularDc', [])
 
     function getOptionsFromObject(scope, validOptions) {
         var config = scope.config();
+        console.log(config);
         if (!_.isObject(config)) {
             config = {};
         }
@@ -108,12 +111,10 @@ angular.module('angularDc', [])
 
             var chart = setupChart(scope, iElement, iAttrs);
 
-            scope.$watch('options', function(oldValue, newValue) {
-                if (oldValue === newValue) {
-                    return;
-                }
+            scope.$watch('config', function(oldValue, newValue) {
+
                 chart.options(newValue);
-            });
+            }, true);
 
             chart.render();
         }
