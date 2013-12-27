@@ -1,4 +1,4 @@
-# angular-ncjs
+# angular-dcjs
 
 
 
@@ -6,14 +6,14 @@
 
 Download the [production version][min] or the [development version][max].
 
-[min]: https://raw.github.com/TomNeyland/jquery-angular-ncjs/master/dist/angular-angular-ncjs.min.js
-[max]: https://raw.github.com/TomNeyland/jquery-angular-ncjs/master/dist/angular-angular-ncjs.js
+[min]: https://raw.github.com/TomNeyland/jquery-angular-dcjs/master/dist/angular-angular-dcjs.min.js
+[max]: https://raw.github.com/TomNeyland/jquery-angular-dcjs/master/dist/angular-angular-dcjs.js
 
 In your web page:
 
 ```html
 <script src="angular.js"></script>
-<script src="dist/angular-ncjs.min.js"></script>
+<script src="dist/angular-dcjs.min.js"></script>
 ```
 
 ## Documentation
