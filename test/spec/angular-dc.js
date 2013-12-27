@@ -1,10 +1,10 @@
 'use strict';
 
-describe('Module: angulaDc', function () {
+describe('Module: angularDc', function () {
   var scope, $sandbox, $compile, $timeout;
 
   // load the controller's module
-  beforeEach(module('angulaDc'));
+  beforeEach(module('angularDc'));
 
   beforeEach(inject(function ($injector, $rootScope, _$compile_, _$timeout_) {
     scope = $rootScope;

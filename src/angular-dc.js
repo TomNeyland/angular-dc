@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('angulaDc', [])
+angular.module('angularDc', [])
 
 .directive('dcChart', function() {
 

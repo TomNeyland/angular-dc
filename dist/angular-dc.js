@@ -1,5 +1,5 @@
 'use strict';
-angular.module('angulaDc', []).directive('dcChart', function () {
+angular.module('angularDc', []).directive('dcChart', function () {
   var defaultOptions = {
       width: 200,
       height: 200
