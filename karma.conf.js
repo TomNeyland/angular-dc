@@ -12,6 +12,11 @@ module.exports = function(config) {
             'bower_components/angular/angular.js',
             'bower_components/jquery/jquery.js',
             'bower_components/angular-mocks/angular-mocks.js',
+            'bower_components/lodash/dist/lodash.js',
+            'bower_components/crossfilter/crossfilter.js',
+            'bower_components/d3/d3.js',
+            'bower_components/dcjs/dc.js',
+            'bower_components/dcjs/dc.css',
             'src/*.js',
             'test/spec/*.js'
         ],

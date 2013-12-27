@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 
     // Configurable paths
     var yoConfig = {
-        livereload: 35729,
+        // livereload: 35729,
         src: 'src',
         dist: 'dist'
     };
@@ -63,11 +63,12 @@ module.exports = function(grunt) {
                 ],
                 options: {
                     livereload: yoConfig.livereload
-                }
+                },
+                tasks: ['jshint:src', 'karma:unit']
             },
             test: {
                 files: '<%= jshint.test.src %>',
-                tasks: ['jshint:test', 'qunit']
+                tasks: ['jshint:test', 'karma:unit']
             }
         },
         connect: {

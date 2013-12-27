@@ -1,11 +1,16 @@
 {
-  "name": "angular-dcjs",
+  "name": "angular-dc",
   "version": "0.0.1",
   "dependencies": {},
   "devDependencies": {
     "angular": "latest",
     "angular-mocks": "latest",
     "jquery": "latest",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "dcjs": "master",
+    "crossfilter": "~1.3.0"
+  },
+  "resolutions": {
+    "crossfilter": "~1.3.0"
   }
 }
