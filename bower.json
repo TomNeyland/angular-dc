@@ -10,7 +10,7 @@
     "crossfilter": "~1.3.0"
   },
   "devDependencies": {
-    "angular-mocks": "latest",
+    "angular-mocks": "latest"
   },
   "resolutions": {
     "crossfilter": "~1.3.0"
