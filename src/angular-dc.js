@@ -22,7 +22,6 @@ angular.module('angularDc', [])
 
         // all chart options are exposed via a function
         var validOptions = _(chart).functions().value();
-        console.log(validOptions);
 
         var objOptions = getOptionsFromObject(scope, validOptions);
         var attrOptions = getOptionsFromAttrs(scope, iAttrs, validOptions);
@@ -35,7 +34,6 @@ angular.module('angularDc', [])
                 scopeOptions)
             .value();
 
-        console.log(_.keys(options), options);
         chart.options(options);
 
         return chart;
