@@ -1,33 +1,48 @@
 'use strict';
 angular.module('angularDc', []).directive('dcChart', function () {
-  var defaultOptions = {
-      width: 200,
-      height: 200
-    };
+  var defaultOptions = {};
+  var directiveOptions = [
+      'config',
+      'onFiltered',
+      'onPostRedraw',
+      'onPostRender',
+      'onPreRedraw',
+      'onPreRender',
+      'onZoomed',
+      'postSetupChart'
+    ];
   function setupChart(scope, iElement, iAttrs) {
-    var chartElement = iElement[0], chartTypeName = iAttrs.dcChart || iAttrs.chartType, chartGroupName = iAttrs.chartGroup || undefined;
-    var chartFactory = dc[chartTypeName];
+    var chartElement = iElement[0], chartType = iAttrs.dcChart || iAttrs.chartType, chartGroupName = iAttrs.chartGroup || undefined;
+    var chartFactory = dc[chartType];
     var chart = chartFactory(chartElement, chartGroupName);
-    var validOptions = _(chart).functions().value();
-    var objOptions = getOptionsFromObject(scope, validOptions);
+    var validOptions = getValidOptionsForChart(chart);
+    var objOptions = getOptionsFromConfig(scope, validOptions);
     var attrOptions = getOptionsFromAttrs(scope, iAttrs, validOptions);
     var scopeOptions = getOptionsFromScope(scope, validOptions);
-    var options = _({}).extend(defaultOptions, objOptions, attrOptions, scopeOptions).value();
+    var options = _({}).merge(defaultOptions, objOptions, attrOptions, scopeOptions).value();
+    chart.options(options);
     var eventHandlers = _({
-        'preRender': scope.onPreRender(),
-        'postRender': scope.onPostRender(),
-        'preRedraw': scope.onPreRedraw(),
-        'postRedraw': scope.onPostRedraw(),
-        'filtered': scope.onFiltered(),
-        'zoomed': scope.onZoomed()
+        'preRender': options.onPreRender,
+        'postRender': options.onPostRender,
+        'preRedraw': options.onPreRedraw,
+        'postRedraw': options.onPostRedraw,
+        'filtered': options.onFiltered,
+        'zoomed': options.onZoomed
       }).omit(_.isUndefined);
     eventHandlers.each(function (handler, evt) {
       chart.on(evt, handler);
     }).value();
-    chart.options(options);
+    if (_.isFunction(options.postSetupChart)) {
+      options.postSetupChart(chart, options);
+    }
     return chart;
   }
-  function getOptionsFromObject(scope, validOptions) {
+  function getValidOptionsForChart(chart) {
+    var exposedFunctions = _(chart).functions().value();
+    var validOptions = _(exposedFunctions).extend(directiveOptions).value();
+    return validOptions;
+  }
+  function getOptionsFromConfig(scope, validOptions) {
     var config = scope.config();
     if (!_.isObject(config)) {
       config = {};
@@ -74,12 +89,6 @@ angular.module('angularDc', []).directive('dcChart', function () {
     template: '<svg></svg>',
     link: function (scope, iElement, iAttrs) {
       var chart = setupChart(scope, iElement, iAttrs);
-      scope.$watch('options', function (oldValue, newValue) {
-        if (oldValue === newValue) {
-          return;
-        }
-        chart.options(newValue);
-      });
       chart.render();
     }
   };
