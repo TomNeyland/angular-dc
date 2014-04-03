@@ -6,10 +6,11 @@ angular.module('angularDc', [])
 
    The goal of this directive is to provide a AngularJs interface to
    the existing features of Dc.js.  */
-.directive('dcChart', function() {
+.directive('dcChart', ['$timeout', function($timeout) {
 
     /* Whitelisted options to be read from a chart's html attributes. */
-    var directiveOptions = ['onFiltered',
+    var directiveOptions = ['name',
+                            'onFiltered',
                             'onPostRedraw',
                             'onPostRender',
                             'onPreRedraw',
@@ -48,7 +49,14 @@ angular.module('angularDc', [])
         var validOptions = getValidOptionsForChart(chart);
         // Get options from chartElement's html attributes.
         var options = getOptionsFromAttrs(scope, iAttrs, validOptions);
-
+        if ("options" in options) {
+            options = _.merge(options, options.options);
+            options.options = undefined;
+        }
+        if ("name" in options) {
+            scope[options.name] = chart;
+            options.name = undefined;
+        }
         // Configure the chart based on options
         chart.options(options);
 
@@ -83,7 +91,6 @@ angular.module('angularDc', [])
         .map(function(s){ return "dc" + s.charAt(0).toUpperCase() + s.substring(1)})
         .value();
     }
-
     function getOptionsFromAttrs(scope, iAttrs, validOptions) {
         return _(iAttrs.$attr)
             .keys()
@@ -101,11 +108,13 @@ angular.module('angularDc', [])
     return {
         restrict: 'A',
         link: function(scope, iElement, iAttrs) {
+            var printExceptions = false;
             // add dc and d3 to the scope to allow snippets to be configured in
             // the templates
             scope.dc = dc
             scope.d3 = d3
-
+            scope.DateTime = function(a,b,c,d,e,f){return new Date(a,b,c,d,e,f);}
+            scope.Date = function(a,b,c){return new Date(a,b,c);}
             // watch for the scope to settle until all the attributes are defined
             var unwatch = scope.$watch(function() {
                 var options = _(iAttrs.$attr)
@@ -117,22 +126,43 @@ angular.module('angularDc', [])
                 })
                 .map(function(key) {
                     try {
-                        return scope.$eval(iAttrs[key]);
+                        var r = scope.$eval(iAttrs[key]);
+                        if (_.isUndefined(r)) {
+                            throw Error(iAttrs[key] + " is undefined")
+                        }
+                        return r
                     } catch (e) {
+                        if (printExceptions) {
+                            console.log("unable to eval" + key + ":" + iAttrs[key])
+                            throw e
+                        }
                         return undefined
                     }
                 });
+                if (options.any(_.isUndefined) ){
+                    return undefined
+                }
                 return options.value()
             }, function(options) {
-                if (!_(options).any(_.isUndefined) ){
-                    var chart = setupChart(scope, iElement, iAttrs);
-                    chart.render();
-
-                    // watching the attributes is costly, so we stop after first rendering
+                if (!_.isUndefined(options)){
                     unwatch()
+                    var chart = setupChart(scope, iElement, iAttrs);
+                    // populate the .reset childrens with necessary reset callbacks
+                    var a = angular.element(iElement[0].querySelector("a.reset"));
+                    a.on("click", function() {
+                        chart.filterAll();dc.redrawAll();
+                    });
+                    a.attr("href", "javascript:;")
+                    a.css("display", "none")
+                    // watching the attributes is costly, so we stop after first rendering
+                    chart.render();
                 }
             });
+            // if after 4 second we still get exceptions, we should raise them
+            // to help debugging
+            $timeout(function(){printExceptions=true}, 2000);
+
         }
     };
 
-});
+}]);
