@@ -4,27 +4,36 @@
     <title>dc.js - Pie Chart Example</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="//nickqizhu.github.io/dc.js/css/dc.css"/>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.7/crossfilter.min.js"></script>
+	<script type="text/javascript" src="//nickqizhu.github.io/dc.js/js/dc.js"></script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular.js"></script>
+	<script type="text/javascript" src="../src/angular-dc.js"></script>
 </head>
 <body ng-app="app">
+<!-- we nicely separate the view and the data. Here, all information concerning the way to display the data
+is in the template -->
+<div ng-controller="myController" dc-chart="pieChart" dc-chart-group="1"
+     dc-width="780" dc-height="480" dc-inner-radius="100"
+     dc-slices-cap="4"
+     dc-dimension="runDimension" dc-group="speedSumGroup"
+     dc-legend="dc.legend()"></div>
 
-<div ng-controller="myController" dc-chart="pieChart" dc-width="768" dc-height="480" dc-slices-cap="4" dc-innerRadius="100" dc-dimension="runDimension" dc-group="speedSumGroup" dc-legend="dc.legend()"></div>
-
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.7/crossfilter.min.js"></script>
-<script type="text/javascript" src="//nickqizhu.github.io/dc.js/js/dc.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular.js"></script>
-<script type="text/javascript" src="../dist/angular-dc.js"></script>
 <script type="text/javascript">
+angular.module("app", ["angularDc"])
 
-angular.module("app", ["angularDc"]).controller("myController", function($scope) {
+myController = function($scope) {
+	// in the controller, we only keep data modeling (or better, delegate to a service)
     d3.csv("morley.csv", function(error, experiments) {
         ndx = crossfilter(experiments)
         $scope.runDimension  = ndx.dimension(function(d) {return "run-"+d.Run;})
-        $scope.speedSumGroup = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run;});
+        $scope.speedSumGroup = $scope.runDimension.group().reduceSum(function(d) {return d.Speed * d.Run;});
+		// for simplicity we use d3.csv, but normally, we should use $http in order for this
+		// to be called in the $digest
+        $scope.$apply()
     });
-});
-
+}
 </script>
 
 </body>
