@@ -30,7 +30,7 @@ angular.module('angularDc', [])
 
         // Get the chart type to create
         // Rather than creating a directive for each type of chart
-        // we take in a parameter, and use that to call the correct Dc.js
+        // we take it as our main parameter, and use that to call the correct Dc.js
         // chart constructor
         chartType = iAttrs.dcChart,
 
@@ -47,12 +47,20 @@ angular.module('angularDc', [])
         // Get the potential set of options for this chart
         // Used for mapping chartElement's html attributes to chart options
         var validOptions = getValidOptionsForChart(chart);
-        // Get options from chartElement's html attributes.
+
+        // Get additional options from chartElement's html attributes.
+        // All options are prepended with 'dc-'' to avoid clashing with html own meaning (e.g width)
+        // All options are parsed in angular's $parse language, so beware, it is not javascript!
         var options = getOptionsFromAttrs(scope, iAttrs, validOptions);
+
+        // we may have a dc-options attribute which contain a javascript object for stuff
+        // not writtable in $parse language
         if ("options" in options) {
             options = _.merge(options, options.options);
             options.options = undefined;
         }
+        // If we have a dc-name attribute, we populate the scope with the chart
+        // object dc-name
         if ("name" in options) {
             scope[options.name] = chart;
             options.name = undefined;
@@ -73,7 +81,7 @@ angular.module('angularDc', [])
         // Register the eventHandlers with the chart (Dc.js)
         eventHandlers.each(function(handler, evt) {
             chart.on(evt, handler);
-        }).value();
+        });
 
         // Run the postSetupChart callback, if provided
         if (_.isFunction(options.postSetupChart)) {
@@ -97,6 +105,7 @@ angular.module('angularDc', [])
             .intersection(validOptions)
             .map(function(key) {
                 var value = scope.$eval(iAttrs[key]);
+                // remove the dc- prefix if any
                 if (key.substring(0,2) === "dc") {
                     key = key.charAt(2).toLowerCase() + key.substring(3);
                 }
@@ -109,7 +118,7 @@ angular.module('angularDc', [])
         restrict: 'A',
         link: function(scope, iElement, iAttrs) {
             var printExceptions = false;
-            // add dc and d3 to the scope to allow snippets to be configured in
+            // add dc, d3 and commonly used Date method to the scope to allow snippets to be configured in
             // the templates
             scope.dc = dc
             scope.d3 = d3
@@ -126,6 +135,8 @@ angular.module('angularDc', [])
                 })
                 .map(function(key) {
                     try {
+                        // We ignore exception waiting for the data to be potencially loaded
+                        // by the controller
                         var r = scope.$eval(iAttrs[key]);
                         if (_.isUndefined(r)) {
                             throw Error(iAttrs[key] + " is undefined")
@@ -140,12 +151,16 @@ angular.module('angularDc', [])
                     }
                 });
                 if (options.any(_.isUndefined) ){
+                    // return undefined if there is at least one undefined option
+                    // so that the $watch dont call us again at this $digest time
                     return undefined
                 }
                 return options.value()
             }, function(options) {
                 if (!_.isUndefined(options)){
+                    // Stop the $watch, as we now created the charts
                     unwatch()
+
                     var chart = setupChart(scope, iElement, iAttrs);
                     // populate the .reset childrens with necessary reset callbacks
                     var a = angular.element(iElement[0].querySelector("a.reset"));
@@ -159,7 +174,7 @@ angular.module('angularDc', [])
                 }
             });
             // if after 4 second we still get exceptions, we should raise them
-            // to help debugging
+            // to help debugging. $timeout will trigger another round of check.
             $timeout(function(){printExceptions=true}, 2000);
 
         }
