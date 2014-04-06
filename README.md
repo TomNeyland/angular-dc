@@ -17,8 +17,14 @@ In your web page:
 ```
 
 ## Documentation
-_(Coming soon)_
+[Contribute][help-docs]
+[help-docs]: https://github.com/TomNeyland/angular-dc/issues/1
 
 ## Examples
-_(Coming soon)_
+[Some examples][examples]
+
+[Contribute][help-examples]
+
+[help-examples]: https://github.com/TomNeyland/angular-dc/issues/2
+[examples]: https://github.com/TomNeyland/angular-dc/tree/master/example
 
