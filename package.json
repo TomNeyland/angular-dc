@@ -1,12 +1,13 @@
 {
   "name": "angular-dc",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "angular-dc",
   "keywords": [
-    "angular"
+    "angular",
+    "dc",
   ],
-  "homepage": "https://github.com/TomNeyland/angular-dc",
-  "bugs": "https://github.com/TomNeyland/angular-dc/issues",
+  "homepage": "https://github.com/tardyp/angular-dc",
+  "bugs": "https://github.com/tardyp/angular-dc/issues",
   "author": {
     "name": "Tom Neyland",
     "email": "",
@@ -41,8 +42,6 @@
     "karma-firefox-launcher": "~0.1.0",
     "karma-html2js-preprocessor": "~0.1.0",
     "karma-jasmine": "~0.1.3",
-    "karma-requirejs": "~0.1.0",
-    "karma-coffee-preprocessor": "~0.1.0",
     "karma-phantomjs-launcher": "~0.1.0",
     "karma": "~0.10.2",
     "grunt-contrib-qunit": "~0.3.0"
