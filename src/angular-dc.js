@@ -6,14 +6,10 @@ angular.module('angularDc', [])
 
    The goal of this directive is to provide a AngularJs interface to
    the existing features of Dc.js.  */
-.directive('dcChart', function() {
-
-    // At one point there were default options
-    // If this stays empty, remove it
-    var defaultOptions = {};
+.directive('dcChart', ['$timeout', function($timeout) {
 
     /* Whitelisted options to be read from a chart's html attributes. */
-    var directiveOptions = ['config',
+    var directiveOptions = ['name',
                             'onFiltered',
                             'onPostRedraw',
                             'onPostRender',
@@ -27,20 +23,20 @@ angular.module('angularDc', [])
        a Dc.js chart. The chart is configured based on settings read from
        the $scope and the html element.
      */
-    function setupChart(scope, iElement, iAttrs) {
+    function setupChart(scope, iElement, iAttrs, options) {
 
         // Get the element this directive blongs to, the root of chart
         var chartElement = iElement[0],
 
         // Get the chart type to create
         // Rather than creating a directive for each type of chart
-        // we take in a parameter, and use that to call the correct Dc.js
+        // we take it as our main parameter, and use that to call the correct Dc.js
         // chart constructor
-        chartType = iAttrs.dcChart || iAttrs.chartType,
+        chartType = iAttrs.dcChart,
 
         // Get the Dc.js 'Chart Group', if any, for this chart.
         // Charts within a group are tied together
-        chartGroupName = iAttrs.chartGroup || undefined;
+        chartGroupName = iAttrs.dcChartGroup || undefined;
 
         // Get the chart creation function for the chartType
         var chartFactory = dc[chartType];
@@ -52,24 +48,23 @@ angular.module('angularDc', [])
         // Used for mapping chartElement's html attributes to chart options
         var validOptions = getValidOptionsForChart(chart);
 
-        // Get options from the 'config' object if it exists
-        var objOptions = getOptionsFromConfig(scope, validOptions);
+        // Get additional options from chartElement's html attributes.
+        // All options are prepended with 'dc-'' to avoid clashing with html own meaning (e.g width)
+        // All options are parsed in angular's $parse language, so beware, it is not javascript!
+        var options = getOptionsFromAttrs(scope, iAttrs, validOptions);
 
-        // Get options from chartElement's html attributes.
-        var attrOptions = getOptionsFromAttrs(scope, iAttrs, validOptions);
-
-        // Get options explicitly mapped in this directive's scope
-        var scopeOptions = getOptionsFromScope(scope, validOptions);
-
-        // Merge the above options.
-        // Option precedence is: scope > attribute > config object
-        var options = _({})
-            .merge(defaultOptions,
-                objOptions,
-                attrOptions,
-                scopeOptions)
-            .value();
-
+        // we may have a dc-options attribute which contain a javascript object for stuff
+        // not writtable in $parse language
+        if ("options" in options) {
+            options = _.merge(options, options.options);
+            options.options = undefined;
+        }
+        // If we have a dc-name attribute, we populate the scope with the chart
+        // object dc-name
+        if ("name" in options) {
+            scope[options.name] = chart;
+            options.name = undefined;
+        }
         // Configure the chart based on options
         chart.options(options);
 
@@ -86,7 +81,7 @@ angular.module('angularDc', [])
         // Register the eventHandlers with the chart (Dc.js)
         eventHandlers.each(function(handler, evt) {
             chart.on(evt, handler);
-        }).value();
+        });
 
         // Run the postSetupChart callback, if provided
         if (_.isFunction(options.postSetupChart)) {
@@ -99,76 +94,90 @@ angular.module('angularDc', [])
     function getValidOptionsForChart(chart) {
 
         // all chart options are exposed via a function
-        var exposedFunctions = _(chart).functions().value();
-
-        // A few custom options are whitelisted in the directiveOptions array
-        var validOptions = _(exposedFunctions).extend(directiveOptions).value();
-
-        return validOptions;
+        return _(chart).functions()
+        .extend(directiveOptions)
+        .map(function(s){ return "dc" + s.charAt(0).toUpperCase() + s.substring(1)})
+        .value();
     }
-
-    function getOptionsFromConfig(scope, validOptions) {
-        var config = scope.config();
-        if (!_.isObject(config)) {
-            config = {};
-        }
-        return config;
-    }
-
     function getOptionsFromAttrs(scope, iAttrs, validOptions) {
         return _(iAttrs.$attr)
             .keys()
             .intersection(validOptions)
             .map(function(key) {
-                var value;
-                try {
-                    value = scope.$parent.$eval(iAttrs[key]);
-                } catch (e) {
-                    value = iAttrs[key];
+                var value = scope.$eval(iAttrs[key]);
+                // remove the dc- prefix if any
+                if (key.substring(0,2) === "dc") {
+                    key = key.charAt(2).toLowerCase() + key.substring(3);
                 }
                 return [key, value];
             })
             .zipObject()
             .value();
     }
-
-    function getOptionsFromScope(scope, validOptions) {
-        return _(scope).keys()
-            .intersection(validOptions)
-            .map(function(key) {
-                return [key, _.result(scope, key)]
-            })
-            .zipObject()
-            .value();
-    }
-
     return {
-        restrict: 'EAC',
-        // TODO: Decide if this directive even needs its own scope
-        scope: {
-            group: '&',
-            dimension: '&',
-            width: '=',
-            height: '=',
-            config: '&',
-            onPreRender: '&',
-            onPostRender: '&',
-            onPreRedraw: '&',
-            onPostRedraw: '&',
-            onFiltered: '&',
-            onZoomed: '&',
-        },
-        // TODO: Forcing this default template isn't user friendly
-        template: '<svg></svg>',
+        restrict: 'A',
         link: function(scope, iElement, iAttrs) {
+            var printExceptions = false;
+            // add dc, d3 and commonly used Date method to the scope to allow snippets to be configured in
+            // the templates
+            scope.dc = dc
+            scope.d3 = d3
+            scope.DateTime = function(a,b,c,d,e,f){return new Date(a,b,c,d,e,f);}
+            scope.Date = function(a,b,c){return new Date(a,b,c);}
+            // watch for the scope to settle until all the attributes are defined
+            var unwatch = scope.$watch(function() {
+                var options = _(iAttrs.$attr)
+                .keys()
+                .filter(function(s) {
+                    return s.substring(0, 2) === "dc"
+                           && s !== "dcChart"
+                           && s !== "dcChartGroup"
+                })
+                .map(function(key) {
+                    try {
+                        // We ignore exception waiting for the data to be potencially loaded
+                        // by the controller
+                        var r = scope.$eval(iAttrs[key]);
+                        if (_.isUndefined(r)) {
+                            throw Error(iAttrs[key] + " is undefined")
+                        }
+                        return r
+                    } catch (e) {
+                        if (printExceptions) {
+                            console.log("unable to eval" + key + ":" + iAttrs[key])
+                            throw e
+                        }
+                        return undefined
+                    }
+                });
+                if (options.any(_.isUndefined) ){
+                    // return undefined if there is at least one undefined option
+                    // so that the $watch dont call us again at this $digest time
+                    return undefined
+                }
+                return options.value()
+            }, function(options) {
+                if (!_.isUndefined(options)){
+                    // Stop the $watch, as we now created the charts
+                    unwatch()
 
-            // Well gee, now that all of the setup logic is
-            // encapsulated in setupChart this link function
-            // looks pretty empty
-            var chart = setupChart(scope, iElement, iAttrs);
-            chart.render();
+                    var chart = setupChart(scope, iElement, iAttrs);
+                    // populate the .reset childrens with necessary reset callbacks
+                    var a = angular.element(iElement[0].querySelector("a.reset"));
+                    a.on("click", function() {
+                        chart.filterAll();dc.redrawAll();
+                    });
+                    a.attr("href", "javascript:;")
+                    a.css("display", "none")
+                    // watching the attributes is costly, so we stop after first rendering
+                    chart.render();
+                }
+            });
+            // if after 4 second we still get exceptions, we should raise them
+            // to help debugging. $timeout will trigger another round of check.
+            $timeout(function(){printExceptions=true}, 2000);
 
         }
     };
 
-});
+}]);

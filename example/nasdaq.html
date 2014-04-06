@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>dc.js - Nasdaq Example</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="//nickqizhu.github.io/dc.js/css/dc.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.css"/>
+  	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+  	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
+  	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.7/crossfilter.min.js"></script>
+  	<script type="text/javascript" src="//nickqizhu.github.io/dc.js/js/dc.js"></script>
+  	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.15/angular.js"></script>
+  	<script type="text/javascript" src="//tardyp.github.io/angular-jade/javascripts/angular-jade-min.js"></script>
+    <script type="text/javascript" src="../src/angular-dc.js"></script>
+  	<script type="text/javascript" src="colorbrewer.js"></script>
+  	<script type="text/javascript" src="stock.js"></script>
+</head>
+<body ng-app="app">
+<jade>
+.container(ng-controller="myController")
+    h2 Nasdaq 100 Index 1985/11/01-2012/06/29
+    .row
+      .dc-chart(dc-chart="bubbleChart"
+                dc-width="990"
+                dc-height="250"
+                dc-transition-duration="1500"
+                dc-margins="{top: 10, right: 50, bottom: 30, left: 40}"
+                dc-dimension="yearlyDimension"
+                dc-group="yearlyPerformanceGroup"
+                dc-colors="colorbrewer.RdYlGn[9]"
+                dc-color-domain="[-500, 500]"
+                dc-max-bubble-relative-size="0.3"
+                dc-x="d3.scale.linear().domain([-2500, 2500])"
+                dc-y="d3.scale.linear().domain([-100, 100])"
+                dc-r="d3.scale.linear().domain([0, 4000])"
+                dc-elastic-y="true"
+                dc-elastic-x="true"
+                dc-y-axis-padding="100"
+                dc-x-axis-padding="500"
+                dc-render-horizontal-grid-lines="true"
+                dc-render-vertical-grid-lines="true"
+                dc-x-axislabel="'Index Gain'"
+                dc-y-axis-label="'Index Gain %'"
+                dc-render-label="true"
+                dc-render-title="true"
+                dc-options="bubbleChartOptions")
+
+        strong Yearly Performance
+        | (radius: fluctuation/index ratio, color: gain/loss)
+        a.reset reset
+        .clearfix
+    .row
+      .col-xs-3.dc-chart(dc-chart="pieChart"
+                dc-width="180"
+                dc-height="180"
+                dc-radius="80"
+                dc-dimension="gainOrLoss"
+                dc-group="gainOrLossGroup")
+        strong Days by Gain/Loss
+        a.reset reset
+        .clearfix
+      .col-xs-3.dc-chart(dc-chart="pieChart"
+                dc-width="180"
+                dc-height="180"
+                dc-radius="80"
+                dc-inner-radius="30"
+                dc-dimension="quarter"
+                dc-group="quarterGroup")
+        strong Quarters
+        a.reset reset
+        .clearfix
+      .col-xs-3.dc-chart(dc-chart="rowChart"
+                dc-width="180"
+                dc-height="180"
+                dc-margins="{top: 20, left: 10, right: 10, bottom: 20}"
+                dc-group="dayOfWeekGroup"
+                dc-dimension="dayOfWeek"
+                dc-ordinal-colors="['#3182bd', '#6baed6', '#9ecae1', '#c6dbef', '#dadaeb']"
+                dc-elastic-x="true"
+                dc-post-setup-chart="dayOfWeekPostSetupChart"
+                )
+        strong Day of Week
+        a.reset reset
+        .clearfix
+      .col-xs-3.dc-chart(dc-chart="barChart"
+                dc-width="420"
+                dc-height="180"
+                dc-margins="{top: 10, right: 50, bottom: 30, left: 40}"
+                dc-dimension="fluctuation"
+                dc-group="fluctuationGroup"
+                dc-elastic-y="true"
+                dc-center-bar="true"
+                dc-gap="1"
+                dc-round="dc.round.floor"
+                dc-always-use-rounding="true"
+                dc-x="d3.scale.linear().domain([-25, 25])"
+                dc-render-horizontal-grid-lines="true"
+                dc-options="fluctuationChartOptions"
+                dc-post-setup-chart="fluctuationChartPostSetupChart")
+        strong Days by Fluctuation(%)
+        span.reset
+          | range:
+          span.filter
+        a.reset reset
+        .clearfix
+    .row
+      .dc-chart(dc-chart="lineChart"
+                dc-render-area="true"
+                dc-width="990"
+                dc-height="200"
+                dc-transition-duration="1000"
+                dc-margins="{top: 30, right: 50, bottom: 25, left: 40}"
+                dc-dimension="moveMonths"
+                dc-mouse-zoomable="true"
+                dc-range-chart="volumeChart"
+                dc-x="d3.time.scale().domain([Date(1985, 0, 1), Date(2012, 11, 31)])"
+                dc-round="d3.time.month.round"
+                dc-x-units="d3.time.months"
+                dc-elastic-y="true"
+                dc-render-horizontal-grid-lines="true"
+                dc-legend="dc.legend().x(800).y(10).itemHeight(13).gap(5)"
+                dc-brush-on="false"
+                dc-options="moveChartOptions"
+                dc-post-setup-chart="moveChartPostSetupChart")
+        strong Monthly Index Abs Move & Volume/500,000 Chart
+        span.reset(style='display: none;')
+          | range:
+          span.filter
+        a.reset reset
+        .clearfix
+    .row
+      .dc-chart(dc-chart="barChart"
+                dc-name="'volumeChart'"
+                dc-width="990"
+                dc-height="40"
+                dc-margins="{top: 0, right: 50, bottom: 20, left: 40}"
+                dc-dimension="moveMonths"
+                dc-group="volumeByMonthGroup"
+                dc-center-bar="true"
+                dc-gap="Date(1985, 0, 1)"
+                dc-x="d3.time.scale().domain([Date(1985, 0, 1), Date(2012, 11, 31)])"
+                dc-round="d3.time.month.round"
+                dc-always-use-rounding="true"
+                dc-x-units="d3.time.months")
+      p.pull-right select a time range to zoom in
+    .row
+      div
+        .dc-data-count(dc-chart="dataCount"
+                       dc-dimension="ndx"
+                       dc-group="all")
+          span.filter-count
+          | &nbsp;selected out of
+          span.total-count
+          | &nbsp;records |
+          a(ng-click="resetAll()") Reset All
+
+      table.table.table-hover.dc-data-table(
+            dc-chart="dataTable"
+            dc-dimension="dateDimension"
+            dc-group="tableGroup"
+            dc-size="10"
+            dc-post-setup-chart="tablePostSetupChart"
+            )
+        thead
+          tr.header
+            th Date
+            th Open
+            th Close
+            th Change
+            th Volume
+</jade>
+</body>
+<script type="text/coffee">
+
+</html>
