@@ -18,7 +18,7 @@ Download the [production version][min] or the [development version][max].
 // some angularjs controller code...
 </script>
 
-<!-- Setup a simple pie chart. DC.js options are exposed as html attributes -->
+<!--Setup a simple pie chart. DC.js options are exposed as html attributes-->
 <div dc-chart="pieChart" dc-width="180" dc-height="180" dc-radius="80" dc-dimension="gainOrLoss" dc-group="gainOrLossGroup" class="dc-chart"></div>
 ```
 
