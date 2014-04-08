@@ -34,5 +34,6 @@ Download the [production version][min] or the [development version][max].
 
 ## Documentation
 - [Contribute][help-docs]
+
 [help-docs]: https://github.com/TomNeyland/angular-dc/issues/1
 
