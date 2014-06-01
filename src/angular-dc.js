@@ -199,6 +199,10 @@ angular.module('angularDc', [])
     <dc-select dc-dimension="fooDimension", all-label="All foos"/>
 
    This directive helps to filter by arbitrary dimensions without need for another graph.
+
+   Note that if there is a graph on the same dimension as the select, changing the select value
+   will not update the graph's own selection. This is also the case if you make 2 graphs
+   with same dimension. This is a limitation of the underlying lib dc.js
 */
 angular.module('angularDc')
 .directive('dcSelect', ['$timeout', function ($timeout) {
