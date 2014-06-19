@@ -9,6 +9,8 @@ Download the [production version][min] or the [development version][max].
 [min]: https://raw.github.com/TomNeyland/angular-dc/master/dist/angular-dc.min.js
 [max]: https://raw.github.com/TomNeyland/angular-dc/master/dist/angular-dc.js
 
+If you use bower, you can install this via: `bower install angular-dc`
+
 30 second look:
 
 ```html
