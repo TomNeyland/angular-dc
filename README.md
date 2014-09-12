@@ -1,6 +1,6 @@
 # angular-dc
 
-
+AngularJS directives for dc.js
 
 ## Getting Started
 
