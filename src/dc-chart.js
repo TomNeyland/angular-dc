@@ -1,14 +1,13 @@
 'use strict';
 
-angular.module('angularDc', [])
-
 /* The main directive in angularDc, responsible creating Dc.js charts.
 
    The goal of this directive is to provide a AngularJs interface to
    the existing features of Dc.js.  */
-.directive('dcChart', ['$timeout',
-    function($timeout) {
-
+angular.module('angularDc')
+.directive('dcChart', ['$timeout', '$compile',
+    function($timeout, $compile) {
+        window.$compile = $compile;
         /* Whitelisted options to be read from a chart's html attributes. */
         var directiveOptions = ['name',
             'onFiltered',
@@ -35,7 +34,7 @@ angular.module('angularDc', [])
                 // Rather than creating a directive for each type of chart
                 // we take it as our main parameter, and use that to call the correct Dc.js
                 // chart constructor
-                chartType = iAttrs.dcChart,
+                chartType = iAttrs.dcChart || iAttrs.dcChildChart,
 
                 // Get the Dc.js 'Chart Group', if any, for this chart.
                 // Charts within a group are tied together
@@ -55,7 +54,6 @@ angular.module('angularDc', [])
             // All options are prepended with 'dc-'' to avoid clashing with html own meaning (e.g width)
             // All options are parsed in angular's $parse language, so beware, it is not javascript!
             options = getOptionsFromAttrs(scope, iAttrs, validOptions);
-
             // we may have a dc-options attribute which contain a javascript object for stuff
             // not writtable in $parse language
             if ('options' in options) {
@@ -71,6 +69,20 @@ angular.module('angularDc', [])
             // Configure the chart based on options
             chart.options(options);
 
+            if (chartType == "compositeChart") {
+                var children = iElement.children()
+                var composites = []
+                for (var i = 0; i < children.length; i++) {
+                    var c = children[i];
+                    var cAttrs = {};
+                    _.each(c.attributes, function(v) {
+                        cAttrs[iAttrs.$normalize(v.name)] = v.value;
+                    });
+                    cAttrs.$attr = cAttrs;
+                    composites.push(setupChart(scope, [c], cAttrs))
+                }
+                chart.compose(composites)
+            }
             // Get event handlers, if any, from options
             var eventHandlers = _({
                 'preRender': options.onPreRender,
@@ -168,7 +180,6 @@ angular.module('angularDc', [])
                     if (!_.isUndefined(options)) {
                         // Stop the $watch, as we now created the charts
                         unwatch();
-
                         var chart = setupChart(scope, iElement, iAttrs);
                         // populate the .reset childrens with necessary reset callbacks
                         var a = angular.element(iElement[0].querySelector('a.reset'));
@@ -182,7 +193,7 @@ angular.module('angularDc', [])
                         chart.render();
                     }
                 });
-                // if after 4 second we still get exceptions, we should raise them
+                // if after 2 second we still get exceptions, we should raise them
                 // to help debugging. $timeout will trigger another round of check.
                 $timeout(function() {
                     printExceptions = true;
@@ -193,57 +204,3 @@ angular.module('angularDc', [])
 
     }
 ]);
-
-/* Another directive, responsible of integration angular's select directive with dc.
-
-    <dc-select dc-dimension="fooDimension", all-label="All foos"/>
-
-   This directive helps to filter by arbitrary dimensions without need for another graph.
-
-   Note that if there is a graph on the same dimension as the select, changing the select value
-   will not update the graph's own selection. This is also the case if you make 2 graphs
-   with same dimension. This is a limitation of the underlying lib dc.js
-*/
-angular.module('angularDc')
-    .directive('dcSelect', [
-        function() {
-            return {
-                restrict: 'E',
-                scope: {
-                    dcDimension: '=',
-                    allLabel: '@'
-                },
-                template: '<select class="form-control" ng-model="selectModel" ' + 'ng-options="d.key for d in selectOptions">',
-                link: function(scope, iElement, iAttrs) {
-                    scope.$watch('dcDimension', function(dimension) {
-                        var allkeys, chart;
-                        if (dimension !== null) {
-                            // we make a fake chart so that the dimension is known by dc.filterAll()
-                            chart = dc.baseMixin({});
-                            chart.dimension(dimension);
-                            chart.group(dimension);
-                            chart._doRender = function() {};
-                            chart._doRedraw = function() {};
-                            scope.selectModel = {
-                                key: scope.allLabel
-                            };
-                            allkeys = dimension.group().orderNatural().all();
-                            scope.selectOptions = [scope.selectModel].concat(allkeys);
-                        }
-                    });
-                    return scope.$watch('selectModel', function(sel) {
-                        if (scope.dcDimension !== null) {
-                            if (sel !== null && sel.key !== scope.allLabel) {
-                                scope.dcDimension.filter(function(d) {
-                                    return d === sel.key;
-                                });
-                            } else {
-                                scope.dcDimension.filter(null);
-                            }
-                            dc.redrawAll();
-                        }
-                    });
-                }
-            };
-        }
-    ]);
