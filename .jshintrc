@@ -21,7 +21,11 @@
   "smarttabs": true,
   "predef": [
     "angular",
+    "crossfilter",
     "_",
-    "dc"
+    "dc",
+    "describe".
+    "afterEach",
+    "it"
   ]
 }
