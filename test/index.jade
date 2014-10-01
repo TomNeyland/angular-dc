@@ -1,0 +1,31 @@
+doctype html
+html.no-js(xmlns:ng='http://angularjs.org', xmlns:app='ignored')
+    head
+        meta(charset='utf-8')
+        meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+    title AngularDC Show Room
+    meta(name='description', content='AngularDC ShowRoom')
+    meta(name='viewport', content='initial-scale=1, minimum-scale=1, user-scalable=no, maximum-scale=1, width=device-width')
+    link(rel='stylesheet', href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
+    link(rel='stylesheet', href='styles.css')
+    body(ng-cloak, ng-app="app")
+        .container(ng-controller="myController")
+            h2 Composite Chart
+            .dc-chart(dc-chart="compositeChart"
+                      dc-width="990"
+                      dc-height="250"
+                      dc-dimension="zDimension"
+                      dc-x="zScale")
+
+              div(dc-child-chart="lineChart"
+                        dc-dimension="zDimension"
+                        dc-colors="'red'"
+                        dc-group="xGroup")
+              div(dc-child-chart="lineChart"
+                        dc-dimension="zDimension"
+                        dc-colors="'blue'"
+                        dc-group="yGroup")
+
+    script(src="vendors.js?_#{(new Date()).getTime()}")
+    script(src="scripts.js?_#{(new Date()).getTime()}")
+    script(src="tests.js?_#{(new Date()).getTime()}")
