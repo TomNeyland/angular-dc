@@ -181,9 +181,9 @@ module.exports = function(grunt) {
                     global: {
                         indent: ' ',
                         items: ['angular', 'dc', '_', 'd3'],
-                        prefix: '\'',
+                        prefix: 'root.',
                         separator: ',',
-                        suffix: '\''
+                        suffix: ''
                     }
                 }
             }
@@ -208,7 +208,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'less:dist',
         'ngmin:dist',
         'umd:dist',
         'uglify:dist',

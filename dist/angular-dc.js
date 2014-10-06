@@ -10,7 +10,7 @@
         // like Node.
         module.exports = factory();
     } else {
-        root['angularDc'] = factory('angular', 'dc', '_', 'd3');
+        root['angularDc'] = factory(root.angular, root.dc, root._, root.d3);
     }
 }(this, function(angular, dc, _, d3) {
 

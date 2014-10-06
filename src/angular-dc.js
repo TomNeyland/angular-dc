@@ -147,7 +147,7 @@ angularDc.directive('dcChart', ['$timeout',
                                 // by the controller
                                 var r = scope.$eval(iAttrs[key]);
                                 if (_.isUndefined(r)) {
-                                    throw Error(iAttrs[key] + ' is undefined');
+                                    throw new Error(iAttrs[key] + ' is undefined');
                                 }
                                 return r;
                             } catch (e) {
