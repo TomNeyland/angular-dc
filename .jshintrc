@@ -23,6 +23,7 @@
     "angular",
     "_",
     "dc",
-    "define"
+    "define",
+    "d3"
   ]
 }
