@@ -22,6 +22,8 @@
   "predef": [
     "angular",
     "_",
-    "dc"
+    "dc",
+    "define",
+    "d3"
   ]
 }

@@ -1,12 +1,12 @@
 'use strict';
 
-angular.module('angularDc', [])
+var angularDc = angular.module('angularDc', []);
 
 /* The main directive in angularDc, responsible creating Dc.js charts.
 
-   The goal of this directive is to provide a AngularJs interface to
-   the existing features of Dc.js.  */
-.directive('dcChart', ['$timeout',
+       The goal of this directive is to provide a AngularJs interface to
+       the existing features of Dc.js.  */
+angularDc.directive('dcChart', ['$timeout',
     function($timeout) {
 
         /* Whitelisted options to be read from a chart's html attributes. */
@@ -147,7 +147,7 @@ angular.module('angularDc', [])
                                 // by the controller
                                 var r = scope.$eval(iAttrs[key]);
                                 if (_.isUndefined(r)) {
-                                    throw Error(iAttrs[key] + ' is undefined');
+                                    throw new Error(iAttrs[key] + ' is undefined');
                                 }
                                 return r;
                             } catch (e) {
@@ -204,46 +204,46 @@ angular.module('angularDc', [])
    will not update the graph's own selection. This is also the case if you make 2 graphs
    with same dimension. This is a limitation of the underlying lib dc.js
 */
-angular.module('angularDc')
-    .directive('dcSelect', [
-        function() {
-            return {
-                restrict: 'E',
-                scope: {
-                    dcDimension: '=',
-                    allLabel: '@'
-                },
-                template: '<select class="form-control" ng-model="selectModel" ' + 'ng-options="d.key for d in selectOptions">',
-                link: function(scope, iElement, iAttrs) {
-                    scope.$watch('dcDimension', function(dimension) {
-                        var allkeys, chart;
-                        if (dimension !== null) {
-                            // we make a fake chart so that the dimension is known by dc.filterAll()
-                            chart = dc.baseMixin({});
-                            chart.dimension(dimension);
-                            chart.group(dimension);
-                            chart._doRender = function() {};
-                            chart._doRedraw = function() {};
-                            scope.selectModel = {
-                                key: scope.allLabel
-                            };
-                            allkeys = dimension.group().orderNatural().all();
-                            scope.selectOptions = [scope.selectModel].concat(allkeys);
+
+angularDc.directive('dcSelect', [
+    function() {
+        return {
+            restrict: 'E',
+            scope: {
+                dcDimension: '=',
+                allLabel: '@'
+            },
+            template: '<select class="form-control" ng-model="selectModel" ' + 'ng-options="d.key for d in selectOptions">',
+            link: function(scope, iElement, iAttrs) {
+                scope.$watch('dcDimension', function(dimension) {
+                    var allkeys, chart;
+                    if (dimension !== null) {
+                        // we make a fake chart so that the dimension is known by dc.filterAll()
+                        chart = dc.baseMixin({});
+                        chart.dimension(dimension);
+                        chart.group(dimension);
+                        chart._doRender = function() {};
+                        chart._doRedraw = function() {};
+                        scope.selectModel = {
+                            key: scope.allLabel
+                        };
+                        allkeys = dimension.group().orderNatural().all();
+                        scope.selectOptions = [scope.selectModel].concat(allkeys);
+                    }
+                });
+                return scope.$watch('selectModel', function(sel) {
+                    if (scope.dcDimension !== null) {
+                        if (sel !== null && sel.key !== scope.allLabel) {
+                            scope.dcDimension.filter(function(d) {
+                                return d === sel.key;
+                            });
+                        } else {
+                            scope.dcDimension.filter(null);
                         }
-                    });
-                    return scope.$watch('selectModel', function(sel) {
-                        if (scope.dcDimension !== null) {
-                            if (sel !== null && sel.key !== scope.allLabel) {
-                                scope.dcDimension.filter(function(d) {
-                                    return d === sel.key;
-                                });
-                            } else {
-                                scope.dcDimension.filter(null);
-                            }
-                            dc.redrawAll();
-                        }
-                    });
-                }
-            };
-        }
-    ]);
+                        dc.redrawAll();
+                    }
+                });
+            }
+        };
+    }
+]);

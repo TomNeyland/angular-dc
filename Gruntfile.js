@@ -160,10 +160,45 @@ module.exports = function(grunt) {
                 banner: '<%= meta.banner %>'
             },
             dist: {
-                src: '<%= concat.dist.dest %>',
+                src: '<%= yo.dist %>/<%= pkg.name %>.js',
                 dest: '<%= yo.dist %>/<%= pkg.name %>.min.js'
             }
-        }
+        },
+        umd: {
+            dist: {
+                src: '<%= yo.dist %>/<%= pkg.name %>.js',
+                objectToExport: 'angularDc',
+                deps: {
+                    args: ['angular', 'dc', '_', 'd3'],
+                    'default': ['angular', 'dc', 'lodash', 'd3'],
+                    amd: {
+                        indent: ' ',
+                        items: ['angular', 'dc', 'lodash', 'd3'],
+                        prefix: '\'',
+                        separator: ',',
+                        suffix: '\''
+                    },
+                    global: {
+                        indent: ' ',
+                        items: ['angular', 'dc', '_', 'd3'],
+                        prefix: 'root.',
+                        separator: ',',
+                        suffix: ''
+                    }
+                }
+            }
+        },
+        jsbeautifier: {
+            files: ['<%= yo.dist %>/<%= pkg.name %>.js'],
+            options: {
+                js: {
+                    braceStyle: 'collapse',
+                    indentChar: ' ',
+                    indentLevel: 0,
+                    indentSize: 4
+                }
+            }
+        },
     });
 
     grunt.registerTask('test', [
@@ -173,9 +208,10 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', [
         'clean:dist',
-        'less:dist',
         'ngmin:dist',
-        'uglify:dist'
+        'umd:dist',
+        'uglify:dist',
+        'jsbeautifier'
     ]);
 
     grunt.registerTask('release', [
