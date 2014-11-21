@@ -11,12 +11,20 @@ Download the [production version][min] or the [development version][max].
 
 If you use bower, you can install this via: `bower install angular-dc`
 
-30 second look:
+### Dependencies
+See the bower.json file for dependencies: [bower.json][bower.json]
+
+[bower.json]: https://github.com/TomNeyland/angular-dc/blob/master/bower.json
+
+### 30 second look
 
 ```html
 <script src="angular.js"></script>
 <script src="dist/angular-dc.min.js"></script>
+<!--don't forget to include all dependencies-->
 <script>
+//load the angular-dc module in your app
+angular.module("myApp", ['angularDc']);
 // some angularjs controller code...
 </script>
 
