@@ -5,7 +5,7 @@
   "dependencies": {
     "angular": ">=1.2.0",
     "lodash": ">=2.4.1",
-    "dcjs": "master",
+    "dcjs": "2.0.0-alpha.2",
     "crossfilter": "~1.3.0"
   },
   "devDependencies": {
