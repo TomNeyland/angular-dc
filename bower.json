@@ -1,7 +1,7 @@
 {
   "name": "angular-dc",
   "main": "./dist/angular-dc.js",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "dependencies": {
     "angular": ">=1.2.0",
     "lodash": "~2",
