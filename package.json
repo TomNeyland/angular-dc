@@ -1,13 +1,13 @@
 {
   "name": "angular-dc",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "description": "angular-dc",
   "keywords": [
     "angular",
     "dc"
   ],
-  "homepage": "https://github.com/tardyp/angular-dc",
-  "bugs": "https://github.com/tardyp/angular-dc/issues",
+  "homepage": "https://github.com/TomNeyland/angular-dc",
+  "bugs": "https://github.com/TomNeyland/angular-dc/issues",
   "author": {
     "name": "Tom Neyland",
     "email": "",
