@@ -11,6 +11,7 @@ angularDc.directive('dcChart', ['$timeout',
 
         /* Whitelisted options to be read from a chart's html attributes. */
         var directiveOptions = ['name',
+            'onRenderlet',
             'onFiltered',
             'onPostRedraw',
             'onPostRender',
@@ -73,6 +74,7 @@ angularDc.directive('dcChart', ['$timeout',
 
             // Get event handlers, if any, from options
             var eventHandlers = _({
+                'renderlet': options.onRenderlet,
                 'preRender': options.onPreRender,
                 'postRender': options.onPostRender,
                 'preRedraw': options.onPreRedraw,
