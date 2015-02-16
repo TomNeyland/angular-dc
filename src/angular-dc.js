@@ -54,6 +54,21 @@ angularDc.directive('dcChart', ['$timeout',
             // Create an unconfigured instance of the chart
             var chart = chartFactory(chartElement, chartGroupName);
 
+            // Override turn on/off controls so that control elements may reside outside the chart element, whilst inside the root element
+            if (customChartElement) {
+                chart.turnOnControls = function () {
+                    console.log(iElement, d3.select(iElement[0]), d3.select(iElement));
+                    d3.select(iElement[0]).selectAll('.reset').style('display', null);
+                    d3.select(iElement[0]).selectAll('.filter').text(chart.filterPrinter()(chart.filters())).style('display', null);
+                    return chart;
+                };
+                chart.turnOffControls = function () {
+                    d3.select(iElement[0]).selectAll('.reset').style('display', 'none');
+                    d3.select(iElement[0]).selectAll('.filter').style('display', 'none').text(chart.filter());
+                    return chart;
+                };
+            }
+
             // Get the potential set of options for this chart
             // Used for mapping chartElement's html attributes to chart options
             var validOptions = getValidOptionsForChart(chart);
