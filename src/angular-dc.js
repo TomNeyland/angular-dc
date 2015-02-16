@@ -29,8 +29,14 @@ angularDc.directive('dcChart', ['$timeout',
 
         function setupChart(scope, iElement, iAttrs, options) {
 
-            // Get the element this directive blongs to, the root of chart
-            var chartElement = iElement[0],
+            // Get the element this directive blongs to
+            var rootElement = iElement[0];
+
+            // If we have a child element with class 'chart', we use it as the chart element instead of the directive's element
+            var customChartElement = rootElement.querySelector('.chart');
+
+            // The root of chart
+            var chartElement = customChartElement ? customChartElement : rootElement,
 
                 // Get the chart type to create
                 // Rather than creating a directive for each type of chart
