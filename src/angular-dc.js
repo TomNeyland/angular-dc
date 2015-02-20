@@ -100,7 +100,7 @@ angularDc.directive('dcChart', ['$timeout',
 
             // all chart options are exposed via a function
             return _(chart).functions()
-                .extend(directiveOptions)
+                .concat(directiveOptions)
                 .map(function(s) {
                     return 'dc' + s.charAt(0).toUpperCase() + s.substring(1);
                 })
