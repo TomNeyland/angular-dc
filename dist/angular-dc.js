@@ -1,25 +1,25 @@
 (function(root, factory) {
     if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['angular', 'dc', 'lodash', 'd3'], function(angular, dc, _, d3) {
-            return (root.returnExportsGlobal = factory(angular, dc, _, d3));
+        // AMD. Register as an anonymous module unless amdModuleId is set
+        define(['angular', 'dc', 'lodash', 'd3'], function(a0, b1, c2, d3) {
+            return (root['angularDc'] = factory(a0, b1, c2, d3));
         });
     } else if (typeof exports === 'object') {
         // Node. Does not work with strict CommonJS, but
-        // only CommonJS-like enviroments that support module.exports,
+        // only CommonJS-like environments that support module.exports,
         // like Node.
-        module.exports = factory();
+        module.exports = factory(require("angular"), require("dc"), require("lodash"), require("d3"));
     } else {
-        root['angularDc'] = factory(root.angular, root.dc, root._, root.d3);
+        root['angularDc'] = factory(angular, dc, _, d3);
     }
-}(this, function(angular, dc, _, d3) {
+}(this, function(angular, dc, lodash, d3) {
 
     'use strict';
     var angularDc = angular.module('angularDc', []);
     /* The main directive in angularDc, responsible creating Dc.js charts.
 
-       The goal of this directive is to provide a AngularJs interface to
-       the existing features of Dc.js.  */
+           The goal of this directive is to provide a AngularJs interface to
+           the existing features of Dc.js.  */
     angularDc.directive('dcChart', [
         '$timeout',
         function($timeout) {
@@ -36,9 +36,9 @@
                 'postSetupChart'
             ];
             /* Called during the directive's linking phase, this function creates
-       a Dc.js chart. The chart is configured based on settings read from
-       the $scope and the html element.
-     */
+               a Dc.js chart. The chart is configured based on settings read from
+               the $scope and the html element.
+             */
             function setupChart(scope, iElement, iAttrs, options) {
                 // Get the element this directive blongs to, the root of chart
                 var chartElement = iElement[0],
@@ -140,7 +140,7 @@
                                 // by the controller
                                 var r = scope.$eval(iAttrs[key]);
                                 if (_.isUndefined(r)) {
-                                    throw Error(iAttrs[key] + ' is undefined');
+                                    throw new Error(iAttrs[key] + ' is undefined');
                                 }
                                 return r;
                             } catch (e) {
@@ -185,58 +185,54 @@
     ]);
     /* Another directive, responsible of integration angular's select directive with dc.
 
-    <dc-select dc-dimension="fooDimension", all-label="All foos"/>
+        <dc-select dc-dimension="fooDimension", all-label="All foos"/>
 
-   This directive helps to filter by arbitrary dimensions without need for another graph.
+       This directive helps to filter by arbitrary dimensions without need for another graph.
 
-   Note that if there is a graph on the same dimension as the select, changing the select value
-   will not update the graph's own selection. This is also the case if you make 2 graphs
-   with same dimension. This is a limitation of the underlying lib dc.js
-*/
-    angularDc.directive('dcSelect', [
-        function() {
-            return {
-                restrict: 'E',
-                scope: {
-                    dcDimension: '=',
-                    allLabel: '@'
-                },
-                template: '<select class="form-control" ng-model="selectModel" ' + 'ng-options="d.key for d in selectOptions">',
-                link: function(scope, iElement, iAttrs) {
-                    scope.$watch('dcDimension', function(dimension) {
-                        var allkeys, chart;
-                        if (dimension !== null) {
-                            // we make a fake chart so that the dimension is known by dc.filterAll()
-                            chart = dc.baseMixin({});
-                            chart.dimension(dimension);
-                            chart.group(dimension);
-                            chart._doRender = function() {};
-                            chart._doRedraw = function() {};
-                            scope.selectModel = {
-                                key: scope.allLabel
-                            };
-                            allkeys = dimension.group().orderNatural().all();
-                            scope.selectOptions = [scope.selectModel].concat(allkeys);
+       Note that if there is a graph on the same dimension as the select, changing the select value
+       will not update the graph's own selection. This is also the case if you make 2 graphs
+       with same dimension. This is a limitation of the underlying lib dc.js
+    */
+    angularDc.directive('dcSelect', [function() {
+        return {
+            restrict: 'E',
+            scope: {
+                dcDimension: '=',
+                allLabel: '@'
+            },
+            template: '<select class="form-control" ng-model="selectModel" ' + 'ng-options="d.key for d in selectOptions">',
+            link: function(scope, iElement, iAttrs) {
+                scope.$watch('dcDimension', function(dimension) {
+                    var allkeys, chart;
+                    if (dimension !== null) {
+                        // we make a fake chart so that the dimension is known by dc.filterAll()
+                        chart = dc.baseMixin({});
+                        chart.dimension(dimension);
+                        chart.group(dimension);
+                        chart._doRender = function() {};
+                        chart._doRedraw = function() {};
+                        scope.selectModel = {
+                            key: scope.allLabel
+                        };
+                        allkeys = dimension.group().orderNatural().all();
+                        scope.selectOptions = [scope.selectModel].concat(allkeys);
+                    }
+                });
+                return scope.$watch('selectModel', function(sel) {
+                    if (scope.dcDimension !== null) {
+                        if (sel !== null && sel.key !== scope.allLabel) {
+                            scope.dcDimension.filter(function(d) {
+                                return d === sel.key;
+                            });
+                        } else {
+                            scope.dcDimension.filter(null);
                         }
-                    });
-                    return scope.$watch('selectModel', function(sel) {
-                        if (scope.dcDimension !== null) {
-                            if (sel !== null && sel.key !== scope.allLabel) {
-                                scope.dcDimension.filter(function(d) {
-                                    return d === sel.key;
-                                });
-                            } else {
-                                scope.dcDimension.filter(null);
-                            }
-                            dc.redrawAll();
-                        }
-                    });
-                }
-            };
-        }
-    ]);
-
+                        dc.redrawAll();
+                    }
+                });
+            }
+        };
+    }]);
     return angularDc;
-
 
 }));
