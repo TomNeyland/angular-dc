@@ -2,6 +2,8 @@
 
 AngularJS directives for dc.js
 
+[![Build Status](https://travis-ci.org/TomNeyland/angular-dc.svg)](https://travis-ci.org/TomNeyland/angular-dc)
+
 ## Getting Started
 
 Download the [production version][min] or the [development version][max].
