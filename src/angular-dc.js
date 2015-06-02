@@ -184,11 +184,11 @@ angularDc.directive('dcChart', ['$timeout',
                         chart.render();
                     }
                 });
-                // if after 4 second we still get exceptions, we should raise them
+                // if after 60 seconds we still get exceptions, we should raise them
                 // to help debugging. $timeout will trigger another round of check.
                 $timeout(function() {
                     printExceptions = true;
-                }, 2000);
+                }, 60000);
 
             }
         };
