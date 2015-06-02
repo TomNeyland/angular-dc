@@ -9,7 +9,7 @@ clean:
 build:
 	make clean
 	make dependencies
-	gulp build
+	grunt build
 
 
 .PHONY : build
