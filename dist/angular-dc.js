@@ -8,7 +8,7 @@
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like enviroments that support module.exports,
         // like Node.
-        module.exports = factory();
+        module.exports = factory;
     } else {
         root['angularDc'] = factory(root.angular, root.dc, root._, root.d3);
     }
