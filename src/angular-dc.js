@@ -29,8 +29,14 @@ angularDc.directive('dcChart', ['$timeout',
 
         function setupChart(scope, iElement, iAttrs, options) {
 
-            // Get the element this directive blongs to, the root of chart
-            var chartElement = iElement[0],
+            // Get the element this directive blongs to
+            var rootElement = iElement[0];
+
+            // If we have a child element with class 'chart', we use it as the chart element instead of the directive's element
+            var customChartElement = rootElement.querySelector('.chart');
+
+            // The root of chart
+            var chartElement = customChartElement ? customChartElement : rootElement,
 
                 // Get the chart type to create
                 // Rather than creating a directive for each type of chart
@@ -47,6 +53,21 @@ angularDc.directive('dcChart', ['$timeout',
 
             // Create an unconfigured instance of the chart
             var chart = chartFactory(chartElement, chartGroupName);
+
+            // Override turn on/off controls so that control elements may reside outside the chart element, whilst inside the root element
+            if (customChartElement) {
+                chart.turnOnControls = function () {
+                    console.log(iElement, d3.select(iElement[0]), d3.select(iElement));
+                    d3.select(iElement[0]).selectAll('.reset').style('display', null);
+                    d3.select(iElement[0]).selectAll('.filter').text(chart.filterPrinter()(chart.filters())).style('display', null);
+                    return chart;
+                };
+                chart.turnOffControls = function () {
+                    d3.select(iElement[0]).selectAll('.reset').style('display', 'none');
+                    d3.select(iElement[0]).selectAll('.filter').style('display', 'none').text(chart.filter());
+                    return chart;
+                };
+            }
 
             // Get the potential set of options for this chart
             // Used for mapping chartElement's html attributes to chart options
