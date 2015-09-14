@@ -5,13 +5,10 @@
   "dependencies": {
     "angular": ">=1.2.0",
     "lodash": "~2",
-    "dcjs": "2.0.0-beta.3",
+    "dcjs": "2.0.0-beta.18",
     "crossfilter": "~1.3.0"
   },
   "devDependencies": {
     "angular-mocks": "latest"
-  },
-  "resolutions": {
-    "crossfilter": "~1.3.0"
   }
 }
