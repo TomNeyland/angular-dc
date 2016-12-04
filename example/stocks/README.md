@@ -1,8 +1,4 @@
-Angular DC
-===================
-
 ## How to display the examples in your environment
-______
 
 ####Step 1: `npm run build`
 
