@@ -1,21 +1,17 @@
-How to display the examples in your environment
------------------------------------------------
-First you need an http-server, that you can obtain with
+Angular DC
+===================
 
-% npm install -g http-server
+## How to display the examples in your environment
+______
 
-Then you need to execute that server, on the directory
-where you cloned angular-dc.
+####Step 1: `npm run build`
 
-If you did it in /home/me/github_repos/, and thus you have
-the angular-dc project in
+The npm script will execute grunt build which will create the necessary angular-dc.min.js file for the examples to use.
 
- /home/me/github_repos/angular-dc
+####Step 2: `npm run server`
 
-Execute
+This will execute a simple node [http-server](https://github.com/indexzero/http-server)  instance to host the examples on.
 
-% cd /home/me/github_repos
-% http-server
-
-Finally, you just need to open the related url, like for example
- http://localhost:8080/angular-dc/example/stocks/nasdaq.html
+#### Finally: Open URL
+ - http://127.0.0.1:8080/example/stocks/nasdaq.html 
+ - http://127.0.0.1:8080/example/stocks/pie.html

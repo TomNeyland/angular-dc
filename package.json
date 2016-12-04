@@ -41,6 +41,7 @@
     "grunt-ngmin": "0.0.3",
     "grunt-open": "~0.2.2",
     "grunt-umd": "^2.0.0",
+    "http-server": "^0.9.0",
     "karma": "~0.10.2",
     "karma-chrome-launcher": "~0.1.0",
     "karma-firefox-launcher": "~0.1.0",
@@ -53,6 +54,7 @@
   },
   "scripts": {
     "build": "bower install && grunt build",
-    "prebuild": "rimraf bower_components"
+    "prebuild": "rimraf bower_components",
+    "server": "http-server"
   }
 }
